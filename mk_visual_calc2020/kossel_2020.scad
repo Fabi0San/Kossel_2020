@@ -1,71 +1,93 @@
-//translate([0,40,-10/2])cube([340,310,10],center=true);
-//Defines
-
-sin60 = 0.866025;
-cos60 = 0.5;
-explode = 0.0;   // set > 0.0 to push the parts apar1t
-
-delta_min_angle = 21; // the minimul angle of the diagonal rod as full extension while still being on the print surface  
-
-frame_motor_h = 50;  //heaight of motor fram vertex
-frame_top_h = 20;
- 
-frame_extrusion_l = 342.9; //length of extrusions for horizontals, need cut length
-frame_extrusion_h = 857.4375; //length of extrusions for towers, need cut length
+// Input for formulas
+// Mechanical measurements
+frame_extrusion_l = 360; //length of extrusions for horizontals, need cut length
+frame_extrusion_h = 800; //length of extrusions for towers, need cut length
 frame_extrusion_w = 20;
-frame_depth = frame_extrusion_w/2; // used when calculating offsets
 
 vertex_x_offset = 7.25; // offset of the horizontal extrusion to the vertical one in X axis
-vertex_y_offset = 39 ;//27; // offset of the horizontal extrusion to the vertical one in Y axis
+vertex_y_offset = 39; // offset of the horizontal extrusion to the vertical one in Y axis
+//vertex_offset = \\\\\\\
+
+effector_offset = 20; // horizontal distance from center to pivot from effector.scad
+
+rail_depth = -10;    // mgn12 rail is 8mm high - no rail
+truck_depth = 6.35 + 5.12;   // 1/4" spacer plus half openbuilds delrin wheel v slot
+carriage_depth = 20 -2.3 - 1.5;         //from carriage.scad// from truck to pivot
+
+// Config
+delta_min_angle = 21.791; // the minimul angle of the diagonal rod as full extension while still being on the print surface  
+
+// Input for show only
+explode = 0.0;   // set > 0.0 to push the parts apar1t
+frame_motor_h = 50;  //heaight of motor fram vertex
+frame_top_h = 20;
 frame_wall_thickness = 3.6;
-frame_r = ((frame_extrusion_l + vertex_y_offset)/2) / sin60; // need the distance from the center of the vertical beam to the center of the machine
-//cos(60) = Adjacent/hypotenuse so hypotenuse = adjacent/cos(60)
-frame_size = frame_r  + explode;//151.5 + explode;
-frame_offset = (frame_r * cos60) + frame_extrusion_w - vertex_x_offset/2 + explode;//92 + explode;    
-// distance to move a centered extrusion from center of build area to where it needs to be in relation to verticies
-frame_top = frame_extrusion_h - 25 + explode; 
-// I use 30mm based on my own printer. This could vary on how you set up your tensioning/belt length and may allow you to regain soem lost Z if you need it.
 
 effector_h = 8; //height of effector so we can get it centered. From effector.scad
-effector_offset = 20; // horizontal distance from center to pivot from effector.scad
 rod_separation = 20; // Distance from one rod to it's parallel
+
+// distance to move a centered extrusion from center of build area to where it needs to be in relation to verticies
+frame_top = frame_extrusion_h - frame_top_h + explode; 
+// I use 30mm based on my own printer. This could vary on how you set up your tensioning/belt length and may allow you to regain soem lost Z if you need it.
 
 //rail_depth= 17.55 - 7.5;   // 17.55 from the tower_slides.scad file
 //rail_depth = 25; // the further the carriage is from the slider, the shorter the diagonal rod and we regain max z
 //truck_depth=0; // no trucks for printed slides
 
+frame_depth = frame_extrusion_w/2; // used when calculating offsets
 rail_length = 400;
 rail_r_offset = frame_depth + explode; 
-rail_depth = 8 + explode;    // mgn12 rail is 8mm high
-truck_depth = 5 + explode;   // mgn12H/C rail is 5mm high
 rail_z_offset = 112;         // distance from top of motor frame to bottom of rail
 
 endstop_h = 15;              // from endstop.scad
 endstop_depth = 7;     // from endstop.scad
 endstop_r_offset = frame_depth;
 
-carriage_length = 40;        //from carriage.scad
-carriage_pivot_offset = carriage_length/2;  // the distance from the bottom of the carriage to the pivot point, from the carriage.scad and after the 4mm shift to align the bottom of the carriage.stl with 0
-carriage_depth = 13;         //from carriage.scad
+carriage_length = 55;        //from carriage.scad
+carriage_pivot_offset = 17;  // the distance from the bottom of the carriage to the pivot point, from the carriage.scad and after the 4mm shift to align the bottom of the carriage.stl with 0
 carriage_r_offset = rail_depth + truck_depth + frame_depth + explode; // how far to move the carriage away from center
 
+
+// computations
+//Defines
+sin60 = 0.866025;
+cos60 = 0.5;
+frame_r = ((frame_extrusion_l + vertex_y_offset)/2) / sin60 + vertex_x_offset;
+//frame_r = ((frame_extrusion_l/2 / sin60) + vertex_x_offset*sin(30) + frame_depth; // need the distance from the center of the vertical beam to the center of the machine
+//cos(60) = Adjacent/hypotenuse so hypotenuse = adjacent/cos(60)
+
 // diagonal rods
-DELTA_SMOOTH_ROD_OFFSET = frame_r;///cos(30);  //COS(60/2) = A/H  H is our smooth rod offset
-DELTA_RADIUS = DELTA_SMOOTH_ROD_OFFSET - effector_offset - (frame_depth + rail_depth + truck_depth + carriage_depth/2 );
-DELTA_DIAGONAL_ROD =((DELTA_RADIUS*2) - effector_offset) / cos(delta_min_angle); // remember we need to subtract the effector offset so we account for keeping the hotend tip on the edge of the build surface
+DELTA_SMOOTH_ROD_OFFSET = frame_r;///cos(30);  //COS(60/2) = A/H  H is our smooth rod offset
+DELTA_CARRIAGE_OFFSET = frame_depth + rail_depth + truck_depth + carriage_depth;
+DELTA_RADIUS = DELTA_SMOOTH_ROD_OFFSET - effector_offset - DELTA_CARRIAGE_OFFSET;
+
+surface_r = DELTA_SMOOTH_ROD_OFFSET * sin(30) + effector_offset - frame_depth - frame_wall_thickness ;  //the -4 is the thickness of the motor frame wall
+
+DELTA_DIAGONAL_ROD =((DELTA_RADIUS+surface_r) ) / cos(delta_min_angle); // remember we need to subtract the effector offset so we account for keeping the hotend tip on the edge of the build surface
+
+//DELTA_DIAGONAL_ROD =((DELTA_RADIUS*2) - effector_offset) / cos(delta_min_angle); // remember we need to subtract the effector offset so we account for keeping the hotend tip on the edge of the build surface
+
 rod_r = 6/2; // 6mm carbon fiber rods? Just for show anyways
 delta_rod_angle = acos(DELTA_RADIUS/DELTA_DIAGONAL_ROD); // angle of delta diagonal rod when homed
 delta_vert_l = sqrt((DELTA_DIAGONAL_ROD*DELTA_DIAGONAL_ROD)-(DELTA_RADIUS*DELTA_RADIUS));  //the distance from the pivot on the effecto to the pivot on the carriage
-surface_r = DELTA_SMOOTH_ROD_OFFSET * sin(30) + effector_offset - frame_depth - frame_wall_thickness ;  //the -4 is the thickness of the motor frame wall
 
 echo("Horizontal length:", frame_extrusion_l, "mm");
 echo("Vertical length:",frame_extrusion_h,"mm");
 echo("DELTA_RADIUS:", DELTA_RADIUS, "mm");
 echo("DELTA_SMOOTH_ROD_OFFSET:",DELTA_SMOOTH_ROD_OFFSET,"mm");
 echo("DELTA_DIAGONAL_ROD:",DELTA_DIAGONAL_ROD,"mm");
+echo("DELTA_CARRIAGE_OFFSET:",DELTA_CARRIAGE_OFFSET,"mm");
 echo("DELTA vertical length:",delta_vert_l,"mm");
 echo("Delta_rod_angle:",delta_rod_angle,"mm when homed");
 echo("Build plate radius:",surface_r,"mm");
+echo("Rod size without traxxas joints:",DELTA_DIAGONAL_ROD - 34.6,"mm");
+// **** Show only ***
+// **** Show only ***
+// **** Show only ***
+// **** Show only ***
+
+frame_size = (frame_r - vertex_x_offset)  + explode;
+frame_offset = ((frame_r - vertex_x_offset) * cos60) + frame_extrusion_w - vertex_x_offset/2 + explode;//92 + explode;    
 
 //translate([0,DELTA_RADIUS/2+20,370])rotate([0,0,0])cube([8,DELTA_RADIUS,8],center=true);
 
@@ -79,9 +101,11 @@ rail_color = [1,1,1,1];
 plate_color=[0.7,0.7,1.0,0.5];
 
 //calc_slider_z = frame_top - (frame_motor_h + frame_top_h + endstop_h ) - delta_vert_l ;
-calc_slider_z = frame_top - (endstop_h + carriage_length + delta_vert_l + effector_h + 25);
+//calc_slider_z = frame_top - (endstop_h + carriage_length + delta_vert_l + effector_h  );
 //calc_slider_z = frame_motor_h + rail_z_offset + rail_length - carriage_length - delta_vert_l - endstop_h; // need to know where to draw the linear trucks or sliders
-effector_z = calc_slider_z; // need to know where to draw the effector
+hotend_l = 45;
+effector_z = frame_top - (endstop_h + delta_vert_l + effector_h + hotend_l + carriage_pivot_offset ); 
+// need to know where to draw the effector
 
 plate_d = surface_r * 2;
 plate_thickness = 3;
@@ -90,7 +114,6 @@ plate_z = plate_thickness/2 + frame_motor_h +glass_tab_thickness;// + plate_thic
 
 calc_carriage_z = frame_top - endstop_h - carriage_length;
 //echo (calc_carriage_z);
-hotend_l = 45;
 calc_max_z = calc_carriage_z - ( plate_z + hotend_l + delta_vert_l);
 echo("Max Build Height:",calc_max_z,"mm assuming a narrow tower or cone shaped build.");
 
@@ -138,26 +161,10 @@ rotate([0,0,120])translate([-frame_extrusion_l/2,-frame_offset,frame_extrusion_w
 rotate([0,0,-120])translate([-frame_extrusion_l/2,-frame_offset,frame_extrusion_w/2 + frame_top]) rotate([0,90,0])color(t_slot_color)extrusion_20(frame_extrusion_l); //X-Z
 
 
-//slides
-translate([-(sin60*(frame_size)),-(cos60*(frame_size)),calc_carriage_z])rotate([0,0,-60])color(frame_color)import("tower_slides.stl");
-translate([(sin60*(frame_size)),-(cos60*(frame_size)),calc_carriage_z])rotate([0,0,60])color(frame_color)import("tower_slides.stl");
-translate([0,frame_size,calc_carriage_z])rotate([0,0,180])color(frame_color)import("tower_slides.stl");
-
-/*//rails
-translate([-(sin60*(frame_size-rail_r_offset)),-(cos60*(frame_size-rail_r_offset)),calc_carriage_z+carriage_length-rail_length]) rotate([0,0,-60])color(rail_color) rail(rail_length);//import("rail_400mm.stl"); //x-tower rail
-translate([(sin60*(frame_size-rail_r_offset)),-(cos60*(frame_size-rail_r_offset)),calc_carriage_z+carriage_length-rail_length]) rotate([0,0,60])color(rail_color) rail(rail_length);//import("rail_400mm.stl"); //y-tower rail
-translate([0,frame_size-rail_r_offset,calc_carriage_z+carriage_length-rail_length]) rotate([0,0,180])color(rail_color)rail(rail_length);//import("rail_400mm.stl"); //z-tower rail
-//trucks mgn12H
-translate([-(sin60*(frame_size-rail_r_offset-explode)),-(cos60*(frame_size-rail_r_offset-explode)),calc_carriage_z-6.5]) rotate([0,0,-60])color("green")import("mgn12c.stl"); //z-tower truck
-translate([(sin60*(frame_size-rail_r_offset-explode)),-(cos60*(frame_size-rail_r_offset-explode)),calc_carriage_z-6.5]) rotate([0,0,60])color("green")import("mgn12c.stl"); //z-tower truck
-translate([0-explode,frame_size-rail_r_offset-explode,calc_carriage_z-6.5]) rotate([0,0,180])color("green")import("mgn12c.stl"); //z-tower truck
-*/
-
-
 //Carriages
-translate([-(sin60*(frame_size-carriage_r_offset)),-(cos60*(frame_size-carriage_r_offset)),calc_carriage_z])  rotate([90,0,120])translate([0,carriage_length/2,0])color(frame_color2)import("carriage.stl"); //x-tower rail
-translate([(sin60*(frame_size-carriage_r_offset)),-(cos60*(frame_size-carriage_r_offset)),calc_carriage_z])  rotate([90,0,60+180])translate([0,carriage_length/2,0])color(frame_color)import("carriage.stl"); //y-tower rail
-translate([0,frame_size-carriage_r_offset,calc_carriage_z]) rotate([90,0,0])translate([0,carriage_length/2,0])color(frame_color2)import("carriage.stl"); //z-tower rail
+translate([-(sin60*(frame_size-carriage_r_offset)),-(cos60*(frame_size-carriage_r_offset)),calc_carriage_z])  rotate([90,0,120])translate([-carriage_length/2,0,0])color(frame_color2)import("k250_carriage.stl"); //x-tower rail
+translate([(sin60*(frame_size-carriage_r_offset)),-(cos60*(frame_size-carriage_r_offset)),calc_carriage_z])  rotate([90,0,60+180])translate([-carriage_length/2,0,0])color(frame_color)import("k250_carriage.stl"); //y-tower rail
+translate([0,frame_size-carriage_r_offset,calc_carriage_z]) rotate([90,0,0])translate([-carriage_length/2,0,0])color(frame_color2)import("k250_carriage.stl"); //z-tower rail
 
 //endstops
 //X tower

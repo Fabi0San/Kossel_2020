@@ -12,6 +12,22 @@ m3_major = 2.85;
 m3_radius = m3_major/2 + extra_radius;
 m3_wide_radius = m3_major/2 + extra_radius + 0.2;
 
+
+m5_major = 4.85;
+m5_radius = m5_major/2 + extra_radius;
+m5_wide_radius = m5_major/2 + extra_radius + 0.2;
+m5_head_radius = 8.72/2+extra_radius;
+
+m5_nut_od = 8.79; //6.1 for 1515
+m5_nut_radius = m5_nut_od/2 + 0.2 + extra_radius;
+m5_washer_radius = 9 + extra_radius;
+
+m4_major = 3.85;
+m4_radius = m4_major/2 + extra_radius;
+m4_wide_radius = m4_major/2 + extra_radius + 0.2;
+
+t_nut_width = 15+3;
+
 // NEMA17 stepper motors.
 motor_shaft_diameter = 5;
 motor_shaft_radius = motor_shaft_diameter/2 + extra_radius;
