@@ -8,14 +8,14 @@ vertex_x_offset = 7.25; // offset of the horizontal extrusion to the vertical on
 vertex_y_offset = 39; // offset of the horizontal extrusion to the vertical one in Y axis
 //vertex_offset = \\\\\\\
 
-effector_offset = 20; // horizontal distance from center to pivot from effector.scad
+effector_offset = 20;// horizontal distance from center to pivot from effector.scad
 
 rail_depth = -10;    // mgn12 rail is 8mm high - no rail
 truck_depth = 6.35 + 5.12;   // 1/4" spacer plus half openbuilds delrin wheel v slot
-carriage_depth = 20 -2.3 - 1.5;         //from carriage.scad// from truck to pivot
+carriage_depth = 18;         //from carriage.scad// from truck to pivot
 
 // Config
-delta_min_angle = 21.791; // the minimul angle of the diagonal rod as full extension while still being on the print surface  
+delta_min_angle = 22.0419; // the minimul angle of the diagonal rod as full extension while still being on the print surface  
 
 // Input for show only
 explode = 0.0;   // set > 0.0 to push the parts apar1t
@@ -53,12 +53,12 @@ carriage_r_offset = rail_depth + truck_depth + frame_depth + explode; // how far
 sin60 = 0.866025;
 cos60 = 0.5;
 frame_r = ((frame_extrusion_l + vertex_y_offset)/2) / sin60 + vertex_x_offset;
-//frame_r = ((frame_extrusion_l/2 / sin60) + vertex_x_offset*sin(30) + frame_depth; // need the distance from the center of the vertical beam to the center of the machine
+//frame_r = ((frame_extrusion_l/2 / sin60) + vertex_x_offset*sin(30)) + frame_depth; // need the distance from the center of the vertical beam to the center of the machine
 //cos(60) = Adjacent/hypotenuse so hypotenuse = adjacent/cos(60)
 
 // diagonal rods
-DELTA_SMOOTH_ROD_OFFSET = frame_r;///cos(30);  //COS(60/2) = A/H  H is our smooth rod offset
-DELTA_CARRIAGE_OFFSET = frame_depth + rail_depth + truck_depth + carriage_depth;
+DELTA_SMOOTH_ROD_OFFSET = 230.35/2;//frame_r - vertex_x_offset;///cos(30);  //COS(60/2) = A/H  H is our smooth rod offset
+DELTA_CARRIAGE_OFFSET = carriage_r_offset + carriage_depth;
 DELTA_RADIUS = DELTA_SMOOTH_ROD_OFFSET - effector_offset - DELTA_CARRIAGE_OFFSET;
 
 surface_r = DELTA_SMOOTH_ROD_OFFSET * sin(30) + effector_offset - frame_depth - frame_wall_thickness ;  //the -4 is the thickness of the motor frame wall
@@ -76,7 +76,7 @@ echo("Vertical length:",frame_extrusion_h,"mm");
 echo("DELTA_RADIUS:", DELTA_RADIUS, "mm");
 echo("DELTA_SMOOTH_ROD_OFFSET:",DELTA_SMOOTH_ROD_OFFSET,"mm");
 echo("DELTA_DIAGONAL_ROD:",DELTA_DIAGONAL_ROD,"mm");
-echo("DELTA_CARRIAGE_OFFSET:",DELTA_CARRIAGE_OFFSET,"mm");
+echo("DELTA_CARRIAGE_OFFSET:",DELTA_CARRIAGE_OFFSET,"mm");
 echo("DELTA vertical length:",delta_vert_l,"mm");
 echo("Delta_rod_angle:",delta_rod_angle,"mm when homed");
 echo("Build plate radius:",surface_r,"mm");

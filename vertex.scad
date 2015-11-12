@@ -110,10 +110,11 @@ module vertex(height, idler_offset, idler_space, fin_w=5, fin_d, fins=0, fn=180)
    }
    // ease the inside coners
    //vertex_y_offset =0;
-   //vertex_x_offset=0;
-   translate([1,-2.5,0])
-   rotate(-30)
-   translate([vertex_x_offset,vertex_y_offset/2,0])cylinder(h=height+1, r=1, center=true);
+   translate([0,-2.5,0])
+   #rotate(-30)
+   translate([vertex_x_offset,vertex_y_offset/2,0])
+   #cylinder(h=height+1, r=1, center=true);
+   echo(vertex_x_offset,vertex_y_offset/2);
    translate([-1,-2.5,0])
    rotate(30)
    translate([-vertex_x_offset,vertex_y_offset/2,0])cylinder(h=height+1, r=1, center=true);
